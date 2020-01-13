@@ -22,7 +22,13 @@ func displayDetails(nodeInfos []*NodeInfo) {
 	for _, nodeInfo := range nodeInfos {
 		address := "unknown"
 		if len(nodeInfo.node.Status.Addresses) > 0 {
-			address = nodeInfo.node.Status.Addresses[0].Address
+			//address = nodeInfo.node.Status.Addresses[0].Address
+			for _, addr := range nodeInfo.node.Status.Addresses {
+				if addr.Type == v1.NodeInternalIP {
+					address = addr.Address
+					break
+				}
+			}
 		}
 
 		totalGPUMemInNode := nodeInfo.gpuTotalMemory
@@ -144,7 +150,7 @@ func displaySummary(nodeInfos []*NodeInfo) {
 	if hasPendingGPU {
 		buffer.WriteString("PENDING(Allocated)\t")
 	}
-	buffer.WriteString("GPU Memory(MiB)\n")
+	buffer.WriteString(fmt.Sprintf("GPU Memory(%s)\n", memoryUnit))
 
 	// fmt.Fprintf(w, "NAME\tIPADDRESS\tROLE\tGPU(Allocated/Total)\tPENDING(Allocated)\n")
 	fmt.Fprintf(w, buffer.String())
